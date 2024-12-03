@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   code-quality:
@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         package: [hive, hive_flutter, hive_generator]
-        flutter-channel: [stable, beta]
+        flutter-channel: [stable]
     defaults:
       run:
         working-directory: ${{ matrix.package }}
