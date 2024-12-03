@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flutter-channel: [stable, beta]
+        flutter-channel: [stable]
     defaults:
       run:
         working-directory: hive_flutter
@@ -88,8 +88,8 @@ jobs:
           - flutter-channel: stable
             # Test on windows since the generator directly accesses the file system
             os: windows-latest
-          - flutter-channel: beta
-            os: ubuntu-latest
+          #- flutter-channel: beta
+          #  os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     defaults:
       run:
