@@ -119,7 +119,7 @@ class StorageBackendJs extends StorageBackend {
         return bytes;
       }
     } else {
-      return value.dartifyJS();
+      return value.dartify();
     }
   }
 
@@ -148,7 +148,7 @@ class StorageBackendJs extends StorageBackend {
         }
       }).toList();
     } else {
-      return store.iterate().map((e) => e.key.dartifyJS()).toList();
+      return store.iterate().map((e) => e.key.dartify()).toList();
     }
   }
 
@@ -161,7 +161,7 @@ class StorageBackendJs extends StorageBackend {
       final result = await store.getAll(null).asFuture<JSArray>();
       return result.toDart.map(decodeValue);
     } else {
-      return store.iterate().map((e) => e.value.dartifyJS()).toList();
+      return store.iterate().map((e) => e.value.dartify()).toList();
     }
   }
 

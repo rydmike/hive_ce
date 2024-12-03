@@ -36,6 +36,10 @@ Future _performTest(bool lazy) async {
     expect(await await box.get('bool$i'), false);
     expect(await await box.get('null$i', defaultValue: 0), null);
   }
+  // Simple test to check we can read the last int value from the box.
+  // Fails on WASM build, OK on native build and JS build.
+  final int value = await box.get('int${amount - 1}');
+  expect(value, 99);
   await box.close();
 }
 
