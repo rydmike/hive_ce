@@ -22,8 +22,8 @@ extension _JSAnyDartifyJS on JSAny? {
   Object? dartifyJS() {
     if (this == null) return null;
     if (isA<JSNumber>()) {
-      final JSNumber number = this as JSNumber;
-      final double value = number.toDartDouble;
+      final number = this as JSNumber;
+      final value = number.toDartDouble;
       if (value % 1 == 0) {
         return value.toInt();
       } else {
