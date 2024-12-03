@@ -14,26 +14,26 @@ import 'package:hive_ce/src/registry/type_registry_impl.dart';
 import 'package:meta/meta.dart';
 import 'package:web/web.dart';
 
-/// The [dartifyJS] is an extension on the JSAny to convert JSAny
-/// to a Dart object. It differs from [JSAny.dartify] in js_interop.dart
-/// in that it returns values that look like int, as int and not double.
-extension _JSAnyDartifyJS on JSAny? {
-  /// Converts a [JSAny] to a Dart object.
-  Object? dartifyJS() {
-    if (this == null) return null;
-    if (isA<JSNumber>()) {
-      final JSNumber number = this as JSNumber;
-      final double value = number.toDartDouble;
-      if (value % 1 == 0) {
-        return value.toInt();
-      } else {
-        return value.toDouble();
-      }
-    } else {
-      return dartify();
-    }
-  }
-}
+// The [dartifyJS] is an extension on the JSAny to convert JSAny
+// to a Dart object. It differs from [JSAny.dartify] in js_interop.dart
+// in that it returns values that look like int, as int and not double.
+// extension _JSAnyDartifyJS on JSAny? {
+//   /// Converts a [JSAny] to a Dart object.
+//   Object? dartifyJS() {
+//     if (this == null) return null;
+//     if (isA<JSNumber>()) {
+//       final JSNumber number = this as JSNumber;
+//       final double value = number.toDartDouble;
+//       if (value % 1 == 0) {
+//         return value.toInt();
+//       } else {
+//         return value.toDouble();
+//       }
+//     } else {
+//       return dartify();
+//     }
+//   }
+// }
 
 /// Handles all IndexedDB related tasks
 class StorageBackendJs extends StorageBackend {
