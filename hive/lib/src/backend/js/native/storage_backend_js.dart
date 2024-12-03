@@ -17,23 +17,23 @@ import 'package:web/web.dart';
 // The [dartifyJS] is an extension on the JSAny to convert JSAny
 // to a Dart object. It differs from [JSAny.dartify] in js_interop.dart
 // in that it returns values that look like int, as int and not double.
-// extension _JSAnyDartifyJS on JSAny? {
-//   /// Converts a [JSAny] to a Dart object.
-//   Object? dartifyJS() {
-//     if (this == null) return null;
-//     if (isA<JSNumber>()) {
-//       final JSNumber number = this as JSNumber;
-//       final double value = number.toDartDouble;
-//       if (value % 1 == 0) {
-//         return value.toInt();
-//       } else {
-//         return value.toDouble();
-//       }
-//     } else {
-//       return dartify();
-//     }
-//   }
-// }
+extension _JSAnyDartifyJS on JSAny? {
+  /// Converts a [JSAny] to a Dart object.
+  Object? dartifyJS() {
+    if (this == null) return null;
+    if (isA<JSNumber>()) {
+      final JSNumber number = this as JSNumber;
+      final double value = number.toDartDouble;
+      if (value % 1 == 0) {
+        return value.toInt();
+      } else {
+        return value.toDouble();
+      }
+    } else {
+      return dartify();
+    }
+  }
+}
 
 /// Handles all IndexedDB related tasks
 class StorageBackendJs extends StorageBackend {
@@ -119,7 +119,7 @@ class StorageBackendJs extends StorageBackend {
         return bytes;
       }
     } else {
-      return value.dartify();
+      return value.dartifyJS();
     }
   }
 
@@ -148,7 +148,7 @@ class StorageBackendJs extends StorageBackend {
         }
       }).toList();
     } else {
-      return store.iterate().map((e) => e.key.dartify()).toList();
+      return store.iterate().map((e) => e.key.dartifyJS()).toList();
     }
   }
 
@@ -161,7 +161,7 @@ class StorageBackendJs extends StorageBackend {
       final result = await store.getAll(null).asFuture<JSArray>();
       return result.toDart.map(decodeValue);
     } else {
-      return store.iterate().map((e) => e.value.dartify()).toList();
+      return store.iterate().map((e) => e.value.dartifyJS()).toList();
     }
   }
 
