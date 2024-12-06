@@ -14,24 +14,49 @@ import 'package:hive_ce/src/registry/type_registry_impl.dart';
 import 'package:meta/meta.dart';
 import 'package:web/web.dart';
 
-// The [dartifyJS] is an extension on the JSAny to convert JSAny
+// Constants for safe integer bounds.
+const _maxSafeInteger = 9007199254740991; // 2^53 - 1
+const _minSafeInteger = -9007199254740991; // -(2^53 - 1)
+
+// The `_dartifyJS()` is an extension on `JSAny?` to convert `JSAny`
 // to a Dart object. It differs from [JSAny.dartify] in js_interop.dart
-// in that it returns values that look like int, as int and not double.
+// in that it returns values that look like int, as `int` and not `double`.
 extension _JSAnyDartifyJS on JSAny? {
-  /// Converts a [JSAny] to a Dart object.
-  Object? dartifyJS() {
-    if (this == null) return null;
+  // Converts a [JSAny] to a Dart object, ensuring JS numbers are properly
+  // typed. In WASM builds it matches JS build behavior by returning
+  //integers when appropriate.
+  //
+  // NOTE: It also returns JS values that are `double`values that looks like
+  // `int` values e.g. 1.0 and 42.0 within int range, as `int` values.
+  // This is also done in the JS build by js_interop `dartify()` and in past JS
+  // interop as well. Returning `double` values that look like inf values as
+  // int and then in Dart assigning them or casting them to double is not a
+  // problem. This already happens in the JS build with `dartify()` nad past
+  // JS interop used by Hive (none CE version).
+  //
+  // The WASM build behavior of `dartify()` that returns all JS numbers as
+  // `double` to Dart, is problematic when you expect `int` numbers. Getting
+  // ìnt `values` when you expect `double` values, as in JS mode and past
+  // interop is far less problematic as `ìnt` values can be assigned to `double`
+  // variables without any issues.
+  //
+  // Technically the choice of WASM mode `dartify()` behavior of returning all
+  // JS numbers as `double` is correct as all JS numbers are doubles. But it
+  // not a good choice as it breaks the expected behavior and compatibility
+  // past Hive, and JS mode `dartify()` and past interop.
+  Object? _dartifyJS() {
+    if (this == null) return this;
     if (isA<JSNumber>()) {
-      final number = this as JSNumber;
-      final value = number.toDartDouble;
-      if (value % 1 == 0) {
+      final value = (this as JSNumber).toDartDouble;
+      // Check if value is a whole number and is within safe integer bounds.
+      if (value.truncateToDouble() == value &&
+          value <= _maxSafeInteger &&
+          value >= _minSafeInteger) {
         return value.toInt();
-      } else {
-        return value.toDouble();
       }
-    } else {
-      return dartify();
+      return value; // Already a double, no conversion needed
     }
+    return dartify();
   }
 }
 
@@ -119,7 +144,7 @@ class StorageBackendJs extends StorageBackend {
         return bytes;
       }
     } else {
-      return value.dartifyJS();
+      return value._dartifyJS();
     }
   }
 
@@ -148,7 +173,7 @@ class StorageBackendJs extends StorageBackend {
         }
       }).toList();
     } else {
-      return store.iterate().map((e) => e.key.dartifyJS()).toList();
+      return store.iterate().map((e) => e.key._dartifyJS()).toList();
     }
   }
 
@@ -161,7 +186,7 @@ class StorageBackendJs extends StorageBackend {
       final result = await store.getAll(null).asFuture<JSArray>();
       return result.toDart.map(decodeValue);
     } else {
-      return store.iterate().map((e) => e.value.dartifyJS()).toList();
+      return store.iterate().map((e) => e.value._dartifyJS()).toList();
     }
   }
 
